@@ -67,6 +67,16 @@ class BertVisualiser:
             if d == c:
                 continue
             print(f"{a} is to {b} as {c} is to {d}")
+        self.embedding_matrix = torch.cat(
+            (
+                self.embedding_matrix,
+                transformation_vector.unsqueeze(0)
+            )
+        )
+        self.labels = [
+            *self.labels,
+            ["INTERPOLATION_VECTOR", 0, 0, 0, 0]
+        ]
     
     def visualise_embeddings(self):
         writer = SummaryWriter()
@@ -85,10 +95,4 @@ if __name__ == "__main__":
     bert = BertVisualiser(n_embeddings=30000)
     # bert.visualise_embeddings()
     bert.analogy_solver("london", "england", "madrid")
-
-
-    
-
-
-
-
+    bert.visualise_embeddings()
