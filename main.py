@@ -1,12 +1,11 @@
 #%%
-from transformers import BertModel, BertTokenizer
-from word_types.prepositions import prepositions
 from time import time
 from torch.utils.tensorboard import SummaryWriter
-import torchmetrics
-import torch
+from transformers import BertModel, BertTokenizer
 from transformers import logging
-
+from word_types.prepositions import prepositions
+import torch
+import torchmetrics
 #%%
 class BertVisualiser:
     def __init__(self, n_embeddings) -> None:
@@ -26,7 +25,7 @@ class BertVisualiser:
             Torch tensor with size [n_embeddings, 768].
         """
         embedding_matrix = self.bert_model.embeddings.word_embeddings.weight.detach()[:self.n_embeddings]
-        print(f"Embedding shape: {embedding_matrix.shape}")
+        # print(f"Embedding shape: {embedding_matrix.shape}")
 
         return embedding_matrix
     
@@ -96,7 +95,9 @@ class BertVisualiser:
         d_embedding = c_embedding + transformation_vector
         nearest_tokens = self.get_token_from_embedding(d_embedding, n=n+1)        
         for d in nearest_tokens:
-            if d == c:
+            if d == b:
+                continue
+            elif c == d:
                 continue
             print(f"{a} is to {b} as {c} is to {d}")
         self.embedding_matrix = torch.cat(
@@ -127,5 +128,5 @@ class BertVisualiser:
 if __name__ == "__main__":
     logging.set_verbosity_error() # removes annnoying warning
     bert = BertVisualiser(n_embeddings=30000)
-    bert.analogy_solver("london", "england", "madrid")
+    # bert.analogy_solver("london", "england", "madrid")
     # bert.visualise_embeddings()
