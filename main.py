@@ -1,3 +1,4 @@
+#%%
 from transformers import BertModel, BertTokenizer
 from word_types.prepositions import prepositions
 from time import time
@@ -16,13 +17,29 @@ class BertVisualiser:
         self.embedding_matrix = self.get_embedding_matrix()
         self.labels, self.label_names = self.create_embedding_labels()
         
-    def get_embedding_matrix(self):
+    def get_embedding_matrix(self) -> torch.Tensor:
+        """Returns a matrix of pretrained word embeddings.
+
+        Returns
+        -------
+        torch.Tensor
+            Torch tensor with size [n_embeddings, 768].
+        """
         embedding_matrix = self.bert_model.embeddings.word_embeddings.weight.detach()[:self.n_embeddings]
         print(f"Embedding shape: {embedding_matrix.shape}")
 
         return embedding_matrix
     
-    def create_embedding_labels(self):
+    def create_embedding_labels(self) -> tuple:
+        """Creates labels and label names, based on the dictionary of functions defined in
+        label_functions, by which words may be categorized and sortedin the tensorboard 
+        visualisation.
+
+        Returns
+        -------
+        tuple of lists
+            tuple of two lists, one of labels and one of label names.
+        """
         label_functions = {
             "Length" : lambda word: len(word),
             "# Vowels" : lambda word: len([char for char in word if char in "aeiou"]),
@@ -38,7 +55,19 @@ class BertVisualiser:
 
         return labels, label_names
 
-    def get_word_embedding(self, word):
+    def get_word_embedding(self, word: str) -> torch.Tensor:
+        """Gets the embedding vector of the input word.
+
+        Parameters
+        ----------
+        word : str
+            Word whos embedding is to be returned.
+
+        Returns
+        -------
+        torch.Tensor
+            Embedding of the queried word.
+        """
         self.bert_tokenizer.tokens_to_ids = {
             token : id for id, token in self.bert_tokenizer.ids_to_tokens.items() 
         }
@@ -54,7 +83,10 @@ class BertVisualiser:
 
         return [list(self.bert_tokenizer.ids_to_tokens.values())[idx] for idx in similarity_idx]
 
-    def analogy_solver(self, a, b, c, n=2):
+    def analogy_solver(self, a:str, b:str, c:str, n=2):
+        """Compares words with the logic "a is to b as c is to d" where d is found in the
+        embedding matrix. E.g. london is to england as madrid is to spain.
+        """
         a_embedding = self.get_word_embedding(a)
         b_embedding = self.get_word_embedding(b)
 
@@ -79,6 +111,8 @@ class BertVisualiser:
         ]
     
     def visualise_embeddings(self):
+        """Visualise the embeddings using Tensorboard.
+        """
         writer = SummaryWriter()
         start = time()
 
@@ -93,6 +127,5 @@ class BertVisualiser:
 if __name__ == "__main__":
     logging.set_verbosity_error() # removes annnoying warning
     bert = BertVisualiser(n_embeddings=30000)
-    # bert.visualise_embeddings()
     bert.analogy_solver("london", "england", "madrid")
-    bert.visualise_embeddings()
+    # bert.visualise_embeddings()
