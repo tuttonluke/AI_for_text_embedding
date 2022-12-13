@@ -128,5 +128,10 @@ class BertVisualiser:
 if __name__ == "__main__":
     logging.set_verbosity_error() # removes annnoying warning
     bert = BertVisualiser(n_embeddings=30000)
-    # bert.analogy_solver("london", "england", "madrid")
-    # bert.visualise_embeddings()
+    bert.analogy_solver("swim", "swam", "run")
+    bert.visualise_embeddings()
+
+# TODO average of list of words
+# TODO list of words to add together and see what results (e.g. man + royalty = king?)
+# TODO try other pretrained embeddings
+# TODO fine tune bert on our own dataset (use the unused) 
